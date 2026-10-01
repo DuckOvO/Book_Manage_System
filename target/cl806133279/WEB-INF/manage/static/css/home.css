@@ -1,0 +1,136 @@
+.el-main{
+background: url("https://clfile.zggen.cn/20240514/a9011d7688654c248e110e4df108264f.webp") no-repeat center center / cover;
+}
+
+#child-page{
+ display:flex;
+ flex-wrap:wrap;
+}
+
+
+.count_list {
+  width:100%;
+  display: flex;
+  justify-content: center;
+  grid-column-gap: 20px;
+  padding:10px;
+  color: #333;
+  margin:10px auto;
+}
+
+.systemTitle{
+  width:100%;
+  padding:20px;
+  text-align:center;
+  line-height: 40px;
+  font-size: 30px;
+  color: #333;
+}
+
+
+.count_item {
+  background:url(http://clfile.zggen.cn/20251219/92e1fa2ac42641edb0d3e12f11248d9d.png) no-repeat 95% 20px,#fff;
+  border-radius: 0px;
+  padding: 20px 60px 20px 20px;
+  flex: 1;
+
+box-shadow: 0px 4px 10px 0px var(--theme);
+border-radius: 30px 30px 30px 30px;
+}
+.count_item:nth-child(1){
+    border-color: #d4af37; 
+ } 
+.count_item:nth-child(2){
+    border-color: #3b82f6; 
+ } 
+.count_item:nth-child(3){
+    border-color: #22c55e; 
+ }
+.count_item:nth-child(4){
+    border-color: #a855f7; 
+ }
+.count_item:nth-child(5){
+    border-color: #eab308; 
+ }
+.count_item:nth-child(6){
+    border-color: #ef4444; 
+ }
+
+
+.count_item .item-head {
+  width:100%;
+  display: none;
+  font-size: 14px;
+  padding:10px 10px;
+}
+
+.count_item .item-head-title {
+  margin-right: auto;
+  color: #fff;
+}
+.count_item .el-icon-close {
+  margin-left: 6px;
+  cursor: pointer;
+}
+
+
+.count_item .item-content{
+  display: flex;
+  flex-wrap:wrap;
+  justify-content: center;
+  gap:10px;
+}
+
+
+.count_item .item_title{
+  width:100%;
+  text-align:left;
+  line-height: 40px;
+  font-size: 14px;
+  color: #fff;
+  padding:0 20px;
+  order:2;
+  background: var(--theme);
+  border-radius: 10px 10px 10px 10px;
+}
+
+.count_item .item_num{
+  width:100%;
+  text-align:left;
+  font-size: 32px;
+  color: #000;
+  font-weight: 600;
+  font-family: cursive;
+  padding:0 20px;
+  order:2;
+}
+
+
+.chart_list{
+  width:100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 10px auto;
+  gap:20px;
+  order:11;
+}
+
+
+.chart_list .chart_item{
+  flex: 1;
+  min-width: 48%;
+  padding:10px;
+    border: 20px solid transparent;
+    background: linear-gradient(white, white) padding-box, linear-gradient(180deg, var(--theme3), var(--theme)) border-box;
+    border-radius: 20px;
+}
+
+.chart_list .chart_item .Echart{
+  width:100%;
+  height: 400px;
+  background:#fff;
+  padding:0px;
+  border:0px solid #eee;
+}
+

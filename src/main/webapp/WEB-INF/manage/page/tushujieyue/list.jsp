@@ -1,0 +1,1149 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>图书借阅</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/manage/static/modules/elementui/theme/index.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/manage/static/css/app.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/manage/static/css/index.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/manage/static/css/formComponent.css">
+    <script src="${pageContext.request.contextPath}/static/manage/static/modules/vue.min.js"></script>
+    <script src="${pageContext.request.contextPath}/static/manage/static/modules/elementui/index.js"></script>
+    <script src="${pageContext.request.contextPath}/static/manage/static/iconfont/iconfont.js"></script>
+</head>
+<body>
+<el-container id="page" v-cloak>
+    <el-header height="auto">
+        <page-header page-name="图书借阅"></page-header>
+    </el-header>
+    <el-container>
+        <page-aside>
+            <template v-slot:menu>
+                <page-menus></page-menus>
+            </template>
+        </page-aside>
+            <el-main>
+                <breadcrumb page-name="图书借阅"></breadcrumb>
+                <div class="child-page">
+                    <el-form :model="searchQuery" class="list-query-row"  size="medium" :inline="true" label-width="120px" >
+                        <el-form-item class="query-input" label="书籍名称">
+                            <el-input v-model="searchQuery.shujimingcheng"
+                                      placeholder="书籍名称"
+                                      size="small"
+                                      clearable>
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item class="query-select" label="书籍分类">
+                            <el-select
+                                    class="selector"
+                                    clearable
+                                    v-model="searchQuery.shujifenlei"
+                                    placeholder="书籍分类"
+                            >
+                                <el-option v-for="item in shujifenleiLists" :label="item" :value="item"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item class="query-input" label="ISBN">
+                            <el-input v-model="searchQuery.bianma"
+                                      placeholder="ISBN"
+                                      size="small"
+                                      clearable>
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item class="query-select" label="审核状态：">
+                            <el-select
+                                    class="search_sel"
+                                    clearable
+                                    v-model="searchQuery.sfsh"
+                                    placeholder="审核状态"
+                            >
+                                <el-option v-for="item in approvalLists" :label="item" :value="item"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item class="query-btn">
+                            <el-button type="primary" @click="searchClick()" size="small">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                    <div class="btns-row">
+                        <el-button type="success" @click="addClick" v-if="btnAuth('tushujieyue','新增')" class="add">新增</el-button>
+                        <el-button class="info" v-if=" btnAuth('tushujieyue','查看')"
+                                    :type="selRows.length==1?'info':''"
+                                    :disabled="selRows.length==1?false:true"
+                                    @click="infoClick(null)">详情</el-button>
+                        <el-button class="edit"
+                                   :type="selRows.length==1?'primary':''"
+                                   :disabled="selRows.length==1?false:true"
+                                   @click="editClick()"
+                                   v-if=" btnAuth('tushujieyue','修改')">修改</el-button>
+                        <el-button class="del"
+                                   :type="selRows.length?'danger':''"
+                                   :disabled="selRows.length?false:true"
+                                   @click="delClick(null)"
+                                   v-if="btnAuth('tushujieyue','删除')">删除</el-button>
+                        <el-button class="chart" type="warning" @click="echartClick2" v-if="btnAuth('tushujieyue','热门图书统计')">用户借阅量统计</el-button>
+                    </div>
+                    <div class="table-wrapper">
+                        <el-table
+                                v-loading="listLoading"
+                                @selection-change="handleSelectionChange"
+                                ref="table"
+                                :data="list"
+                                @row-click="listChange"
+                                :border="false" :stripe="true" >
+                            <el-table-column type="selection" width="55" class-name="selection-column"></el-table-column>
+                            <el-table-column label="序号" width="70" align="center" class-name="num-column">
+                                <template slot-scope="scope">{{ scope.$index + 1}}</template>
+                            </el-table-column>
+                            <el-table-column
+                                    label="租借编号">
+                                <template slot-scope="scope">
+                                    {{scope.row.zujiebianhao}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    label="书籍名称">
+                                <template slot-scope="scope">
+                                    {{scope.row.shujimingcheng}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="封面" width="120" align="center" class-name="img-column">
+                                <template slot-scope="scope">
+                                    <div v-if="scope.row.fengmian">
+                                        <el-image v-if="scope.row.fengmian.substring(0,4)=='http'"
+                                                  :preview-src-list="[scope.row.fengmian.split(',')[0]]"
+                                                  :src="scope.row.fengmian.split(',')[0]" style="width:100px;height:100px"></el-image>
+                                        <el-image v-else
+                                                  :preview-src-list="[baseUrl+scope.row.fengmian.split(',')[0]]"
+                                                  :src="baseUrl+scope.row.fengmian.split(',')[0]" style="width:100px;height:100px">
+                                        </el-image>
+                                    </div>
+                                    <div v-else>无图片</div>
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    label="书籍分类">
+                                <template slot-scope="scope">
+                                    {{scope.row.shujifenlei}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    label="ISBN">
+                                <template slot-scope="scope">
+                                    {{scope.row.bianma}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    label="借阅数量">
+                                <template slot-scope="scope">
+                                    {{scope.row.jieyueshuliang}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    label="用户名">
+                                <template slot-scope="scope">
+                                    {{scope.row.yonghuming}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    label="姓名">
+                                <template slot-scope="scope">
+                                    {{scope.row.xingming}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    label="借阅时间">
+                                <template slot-scope="scope">
+                                    {{scope.row.jieyueshijian}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    label="归还时间">
+                                <template slot-scope="scope">
+                                    {{scope.row.guihaishijian}}
+                                </template>
+                            </el-table-column>
+
+                            <el-table-column label="审核回复">
+                                <template slot-scope="scope">
+                                    {{scope.row.shhf}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="审核状态">
+                                <template slot-scope="scope">
+                                    <el-tag type="success" v-if="scope.row.sfsh=='是'">通过</el-tag>
+                                    <el-tag type="danger" v-else-if="scope.row.sfsh=='否'">未通过</el-tag>
+                                    <el-tag type="warning" v-else>待审核</el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="审核" v-if="btnAuth('tushujieyue','审核')">
+                                <template slot-scope="scope">
+                                    <el-button v-if="scope.row.sfsh!='是'" type="text" @click="approvalClick(scope.row)">审核</el-button>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作" width="200" class-name="option-column">
+                                <template slot-scope="scope">
+                                    <el-button size="mini" type="primary" class="info" v-if=" btnAuth('tushujieyue','查看')" @click="infoClick(scope.row.id)">
+                                        详情
+                                    </el-button>
+                                    <el-button
+                                            v-if="btnAuth('tushujieyue','归还')"
+                                            type="success"
+                                            size="mini"
+                                            class="cross"
+                                            @click="tushuguihaiCrossAddOrUpdateHandler(scope.row,'cross','是','','[1]','已归还')">
+                                        归还
+                                    </el-button>
+                                    <el-button
+                                            v-if="btnAuth('tushujieyue','续借')"
+                                            type="success"
+                                            size="mini"
+                                            class="cross"
+                                            @click="tushuxujieCrossAddOrUpdateHandler(scope.row,'cross','是','','','')">
+                                        续借
+                                    </el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                    <el-pagination class="pagination"
+                                   :total="total"
+                                   :page-size="listQuery.limit"
+                                   @size-change="sizeChange"
+                                   @current-change="currentChange"
+                                   @prev-click="prevClick"
+                                   @next-click="nextClick"
+                                   layout="prev, pager, next" :background="true" :hide-on-single-page="true" ></el-pagination>
+                </div>
+                <tushujieyue-form ref="formRef" @change="formModelChange"></tushujieyue-form>
+                <approval ref="approvalRef" :table-name="tableName" @change="shChange"></approval>
+                <tushuguihai-form ref="tushuguihaiFormRef" @change="formModelChange"></tushuguihai-form>
+                <tushuxujie-form ref="tushuxujieFormRef" @change="formModelChange"></tushuxujie-form>
+                <!-- 统计图弹窗 -->
+                <el-dialog :visible.sync="echartVisible" :title="'热门图书统计'" width="70%">
+                    <el-tabs v-model="echartActive" class="demo-tabs" @tab-click="echartTabClick" type="card">
+                        <el-tab-pane label="用户借阅量统计" name="2"></el-tab-pane>
+                    </el-tabs>
+                    <div v-if="echartActive==2" id="jieyueshuliangEchart2" style="height:600px;"></div>
+                </el-dialog>
+            </el-main>
+    </el-container>
+</el-container>
+</body>
+<script src="${pageContext.request.contextPath}/static/manage/static/modules/axios.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/manage/utils/http.js"></script>
+<script src="${pageContext.request.contextPath}/static/manage/utils/toolUtil.js"></script>
+<script src="${pageContext.request.contextPath}/static/manage/utils/global_mixin.js"></script>
+<!--引入组件-->
+<script src="${pageContext.request.contextPath}/static/manage/components/pageHeader.js"></script>
+<script src="${pageContext.request.contextPath}/static/manage/components/pageMenus.js"></script>
+<script src="${pageContext.request.contextPath}/static/manage/components/pageAside.js"></script>
+<script src="${pageContext.request.contextPath}/static/manage/components/breadcrumb.js"></script>
+<script src="${pageContext.request.contextPath}/static/manage/components/approval.js"></script>
+<script src="${pageContext.request.contextPath}/static/manage/page/tushujieyue/formComponent.js"></script>
+<script src="${pageContext.request.contextPath}/static/manage/page/tushuguihai/formComponent.js"></script>
+<script src="${pageContext.request.contextPath}/static/manage/page/tushuxujie/formComponent.js"></script>
+<script>
+    var vm = new Vue({
+        el: '#page',
+        data(){
+            return {
+                userInfo:{},
+                tableName:'tushujieyue',
+                listLoading:false,
+                listQuery:{
+                    page: 1,
+                    limit: 20,
+                    sort: 'id',
+                    order: 'desc'
+                },
+                searchQuery:{},
+                approvalLists:[],  //查询审核状态列表
+                total:0,    //记录总条数
+                list:null,  //列表数据
+                selRows:[], //选中的记录
+                echartVisible:false,
+                echartActive:'1',    //激活的tab
+                shujifenleiLists:[],
+            }
+        },
+        created(){
+            this.init()
+        },
+        methods: {
+            init(){
+                this.getshujifenleiLists()
+                this.approvalLists = "是,否,待审核".split(',');
+                this.getList()
+            },
+            getshujifenleiLists(){
+                http.get('option/shujifenlei/shujifenlei').then(res=>{
+                    this.shujifenleiLists = res.data.data
+                })
+            },
+            formModelChange(){
+                this.searchClick()
+            },
+            listChange(row){
+            this.\$nextTick(()=>{
+                this.\$refs['table'].clearSelection()
+                this.\$refs['table'].toggleRowSelection(row)
+                })
+            },
+            getList(){
+                this.listLoading = true
+                let params = JSON.parse(JSON.stringify(this.listQuery))
+                params['sort'] = 'id'
+                params['order'] = 'desc'
+                if(this.searchQuery.shujimingcheng){
+                    params['shujimingcheng'] = '%' + this.searchQuery.shujimingcheng + '%'
+                }
+                if(this.searchQuery.shujifenlei){
+                    params['shujifenlei'] = this.searchQuery.shujifenlei
+                }
+                if(this.searchQuery.bianma){
+                    params['bianma'] = '%' + this.searchQuery.bianma + '%'
+                }
+                if(this.searchQuery.sfsh){
+                    params['sfsh'] = this.searchQuery.sfsh
+                }
+                http.get(`\${this.tableName}/page`,{
+                    params:params
+                }).then(res=>{
+                    this.listLoading = false
+                    this.list = res.data.data.list
+                    this.total = +res.data.data.total
+                })
+            },
+            //删
+            delClick(id){
+                let ids = []
+                if (id) {
+                    ids = [id]
+                } else {
+                    if (this.selRows.length) {
+                        for (let x in this.selRows) {
+                            ids.push(this.selRows[x].id)
+                        }
+                    } else {
+                        return false
+                    }
+                }
+                this.\$confirm(`是否删除选中图书借阅`, '提示', {
+                    confirmButtonText: '是',
+                    cancelButtonText: '否',
+                    type: 'warning'
+                }).then(()=>{
+                    http.post(`\${this.tableName}/delete`,ids).then((res)=>{
+                    this.\$message.success('操作成功')
+                        this.getList()
+                    })
+                })
+            },
+
+            //多选
+            handleSelectionChange(e){
+                this.selRows = e
+            },
+            //列表数据
+            //分页
+            sizeChange(size){
+                this.listQuery.limit = size
+                this.getList()
+            },
+            currentChange(page){
+                this.listQuery.page = page
+                this.getList()
+            },
+            prevClick(){
+                this.listQuery.page = this.listQuery.page - 1
+                this.getList()
+            },
+            nextClick(){
+                this.listQuery.page = this.listQuery.page + 1
+                this.getList()
+            },
+            async shChange(type,row){
+                this.searchClick()
+            },
+            searchClick(){
+                this.listQuery.page = 1
+                this.getList()
+            },
+            addClick(){
+                this.\$refs['formRef'].init()
+            },
+            //权限验证
+            btnAuth(e,a){
+                return toolUtil.isAuth(e,a)
+            },
+            infoClick(id=null){
+                if(id){
+                    this.\$refs['formRef'].init(id,'info')
+                }else if(this.selRows.length){
+                    this.\$refs['formRef'].init(this.selRows[0].id,'info')
+                }
+            },
+            editClick(id){
+                if(id){
+                    this.\$refs['formRef'].init(id,'edit')
+                }else if(this.selRows.length){
+                    this.\$refs['formRef'].init(this.selRows[0].id,'edit')
+                }
+            },
+            spiderClick(){
+
+            },
+            download(file){
+                if(!file){
+                    return this.\$message.error('文件不存在')
+                }
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.setAttribute('target', '_blank');
+                file && a.setAttribute('download', file);
+                a.href = baseUrl + file;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            },
+            echartTabClick(){
+                switch (this.echartActive){
+                    case "1":this.echartClick1();break;
+                    case "2":this.echartClick2();break;
+                }
+            },
+            echartClick1(){
+                this.echartActive = '1'
+                this.echartVisible = true
+                toolUtil.loadScript("${pageContext.request.contextPath}/static/manage/static/modules/echarts.min.js",()=>{
+                    this.\$nextTick(()=>{
+                        let jieyueshuliangEchart1 = echarts.init(document.getElementById("jieyueshuliangEchart1"),'macarons');
+                        http.get(
+                            `tushujieyue/value/shujimingcheng/jieyueshuliang?order=desc`
+                        ).then(res=>{
+                            let obj = res.data.data
+                            let xAxis = [];
+                            let yAxis = [];
+                            let dataList = []
+                            for(let i=0;i<obj.length;i++){
+                                xAxis.push(obj[i].shujimingcheng);
+                                yAxis.push(parseFloat((obj[i].total)));
+                                dataList.push({
+                                    value: parseFloat((obj[i].total)),
+                                    name: obj[i].shujimingcheng
+                                })
+                            }
+                            let option = {};
+                            // 使用刚指定的配置项和数据显示图表。
+                            jieyueshuliangEchart1.setOption(option);
+                            //根据窗口的大小变动图表
+                            window.onresize = function() {
+                                jieyueshuliangEchart1.resize();
+                            };
+                        })
+                    })
+                })
+            },
+            echartClick2(){
+                this.echartActive = '2'
+                this.echartVisible = true
+                toolUtil.loadScript("${pageContext.request.contextPath}/static/manage/static/modules/echarts.min.js",()=>{
+                    this.\$nextTick(()=>{
+                        let jieyueshuliangEchart2 = echarts.init(document.getElementById("jieyueshuliangEchart2"),'macarons');
+                        http.get(
+                            `tushujieyue/value/xingming/jieyueshuliang?order=desc`
+                        ).then(res=>{
+                            let obj = res.data.data
+                            let xAxis = [];
+                            let yAxis = [];
+                            let dataList = []
+                            for(let i=0;i<obj.length;i++){
+                                xAxis.push(obj[i].xingming);
+                                yAxis.push(parseFloat((obj[i].total)));
+                                dataList.push({
+                                    value: parseFloat((obj[i].total)),
+                                    name: obj[i].xingming
+                                })
+                            }
+                            let option = {};
+                        option = {
+    title: {
+        show:false,
+        text: '用户借阅量统计',
+        left: 'center'
+    },
+    grid:{
+        containLabel:true
+    },
+    tooltip: {
+        trigger: 'item',
+        formatter: '{b} : {c}'
+    },
+    dataZoom: [{
+        type: 'inside'  // 允许缩放
+    }],
+    xAxis: {
+        data: xAxis.slice(0,12), 
+        type: 'category',
+        axisLabel: {
+        "interval": 0, //强制显示X轴所有名称
+        "rotate": 30
+        }
+    },
+    yAxis: {
+        type: 'value',
+        "minInterval": 1
+    },
+    series:{
+        data: yAxis,
+        type: 'bar',
+        colorBy:'data',
+        barMaxWidth: 40 // 只限制最大宽度
+    }
+}
+                            // 使用刚指定的配置项和数据显示图表。
+                            jieyueshuliangEchart2.setOption(option);
+                            //根据窗口的大小变动图表
+                            window.onresize = function() {
+                                jieyueshuliangEchart2.resize();
+                            };
+                        })
+                    })
+                })
+            },
+            //审核
+            approvalClick(row){
+                let params = {
+                    id:row.id,
+                    zujiebianhao: row.zujiebianhao,
+                    shujimingcheng: row.shujimingcheng,
+                    fengmian: row.fengmian,
+                    shujifenlei: row.shujifenlei,
+                    bianma: row.bianma,
+                    jieyueshuliang: row.jieyueshuliang,
+                    yonghuming: row.yonghuming,
+                    xingming: row.xingming,
+                    sfsh: row.sfsh,
+                    shhf: row.shhf,
+                    jieyueshijian: row.jieyueshijian,
+                    guihaishijian: row.guihaishijian,
+                }
+                this.\$nextTick(()=>{
+                    this.\$refs["approvalRef"].approvalClick(params)
+                })
+            },
+            tushuguihaiCrossAddOrUpdateHandler(row,type,crossOptAudit,crossOptPay,statusColumnName,tips,statusColumnValue){
+                if(crossOptAudit=='是'&&row.sfsh!='是') {
+                    this.\$message.error('请审核通过后再操作！')
+                    return
+                }
+                if(statusColumnName!=''&&!statusColumnName.startsWith("[")) {
+                    var obj = row
+                    for (var o in obj){
+                        if(o==statusColumnName && obj[o]==statusColumnValue){
+                            this.\$message.error(tips)
+                            return;
+                        }
+                    }
+                }
+                this.\$nextTick(()=>{
+                    this.\$refs.tushuguihaiFormRef.init(row.id,'cross','归还',row,`\${this.tableName}`,statusColumnName,tips,statusColumnValue)
+                })
+            },
+            tushuxujieCrossAddOrUpdateHandler(row,type,crossOptAudit,crossOptPay,statusColumnName,tips,statusColumnValue){
+                if(crossOptAudit=='是'&&row.sfsh!='是') {
+                    this.\$message.error('请审核通过后再操作！')
+                    return
+                }
+                if(statusColumnName!=''&&!statusColumnName.startsWith("[")) {
+                    var obj = row
+                    for (var o in obj){
+                        if(o==statusColumnName && obj[o]==statusColumnValue){
+                            this.\$message.error(tips)
+                            return;
+                        }
+                    }
+                }
+                this.\$nextTick(()=>{
+                    this.\$refs.tushuxujieFormRef.init(row.id,'cross','续借',row,`\${this.tableName}`,statusColumnName,tips,statusColumnValue)
+                })
+            },
+        }
+    })
+</script>
+<style>
+/*返回按钮盒子*/
+.back-row {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.back-row>button {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius:4px;
+}
+.back-row>button:focus,.back-row>button:hover {
+    color: #56c68b;
+    border-color: #56c68b50;
+    background: #56c68b10;
+}
+.back-row>button:active {
+    color: #56c68b;
+    border-color: #56c68b50;
+    outline: none;
+}
+
+/*订单状态总盒子*/
+.state-tabs{
+    background:none;
+    margin-bottom:0px;
+    border: 0px;
+}
+.state-tabs .el-tabs--card>.el-tabs__header {
+    margin:0px;
+    border-bottom: 0px solid #dfe4ed;
+}
+/*订单状态盒子*/
+.state-tabs .el-tabs--card>.el-tabs__header .el-tabs__nav {
+    border: 0px solid #dfe4ed;
+}
+.state-tabs .el-tabs__nav {
+}
+/*订单状态item*/
+.state-tabs .el-tabs--card>.el-tabs__header .el-tabs__item {
+    background:#fff;
+    border: 1px solid #ddd;
+    margin-right:20px;
+    height: 32px;
+    line-height: 32px;
+    transition: all 0s;
+}
+.state-tabs .el-tabs--card>.el-tabs__header .el-tabs__item:hover {
+    color: #fff;
+    border-color: var(--swiper-theme-color);
+    background: var(--swiper-theme-color);
+}
+.state-tabs .el-tabs--card>.el-tabs__header .el-tabs__item:first-child {
+   border-left: 1px solid #ddd;
+}
+.state-tabs .el-tabs--card>.el-tabs__header .el-tabs__item:first-child:hover {
+   border-left: 1px solid var(--swiper-theme-color);
+}
+.state-tabs .el-tabs--card>.el-tabs__header .el-tabs__item.is-active {
+    color: #fff;
+    border-color: var(--swiper-theme-color);
+    background: var(--swiper-theme-color);
+}
+.state-tabs .el-tabs__active-bar {
+    background: var(--swiper-theme-color);
+}
+
+/*表单盒子*/
+form.list-query-row{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    background: none;
+}
+form.list-query-row .el-form-item{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-right:10px;
+    margin-bottom: 10px
+}
+form.list-query-row .query-date .el-form-item__content{
+    height:var(--button-height);
+    line-height:var(--button-line-height);
+}
+
+.el-input--medium .el-input__inner {
+    height: 40px;
+    line-height: 40px;
+}
+
+form.list-query-row .el-input__inner {
+   border-radius: 0px;
+   padding: 0 10px;
+   background: linear-gradient(180deg, #D7EBF8 0%, #D2F6F3 100%);
+   border-radius: 5px 5px 5px 5px;
+   border: 1px solid;
+   border-image: linear-gradient(180deg, rgba(13.000000175088644, 104.00000140070915, 187.00000405311584, 1), rgba(31.000000052154064, 206.0000029206276, 165.00000536441803, 1), rgba(255, 255, 255, 1)) 1 1;
+}
+
+.el-range-editor--medium .el-range-input {
+    background: none;
+}
+
+form.list-query-row .el-input--prefix .el-input__inner {
+    padding-left: 10px
+    border-radius:0px;
+
+}
+form.list-query-row .el-input--suffix .el-input__inner {
+    padding-right: 10px;
+    max-width: 150px;
+}
+form.list-query-row .el-input .el-input--suffix {
+    margin: 0 5px;
+}
+form.list-query-row label.el-form-item__label {
+    width: auto !important;
+    background: none;
+    padding: 0 10px;
+    border: 0px solid #eee;
+    border-width: 0px 0 0px 0px;
+    height:var(--button-height);
+    line-height:var(--button-line-height);
+}
+form.list-query-row .el-input__icon{
+    line-height:var(--button-line-height);
+}
+/*箭头*/
+form.list-query-row .el-input__suffix {
+    right: 10px;
+    color: #c0c4cc;
+}
+/*搜索按钮*/
+form.list-query-row  .el-button--primary {
+    background: linear-gradient( 134deg, var(--theme) 0%, var(--theme3) 100%);
+    border-radius: 5px 5px 5px 5px;
+    border: 1px solid;
+    height:40px;
+    line-height:40px;    
+    padding:0;
+    min-width:80px;
+}
+form.list-query-row  .el-button--primary:focus,.el-button--primary:hover {
+}
+
+/*按钮盒子*/
+.btns-row {
+   width:100%;
+    margin-top: 10px;
+    color: #333;
+    text-align:right;
+}
+/*按钮*/
+.btns-row button{
+     height:32px;
+     line-height:32px;
+     border-radius:2px;
+     font-size:12px;
+     min-width:60px;
+     padding:0 !important;
+     border:none;
+}
+.btns-row button span{
+     display:block;
+     border-radius:2px;
+}
+
+/*新增按钮*/
+.btns-row  .add{
+    margin: 0px 5px 5px 0px;
+    padding: 0px 10px;
+    width: auto;
+    height: 36px;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 0px solid rgba(29, 41, 57, 1);
+    background: var(--theme);
+    cursor: pointer;
+
+}
+.btns-row  .add:hover {
+    opacity: 0.8;
+}
+/*详情按钮*/
+.btns-row  .info{
+    margin: 0px 5px 5px 0px;
+    padding: 0px 10px;
+    width: auto;
+    height: 36px;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 0px solid rgba(33, 104, 197, 1);
+    background: #59db9f;
+    cursor: pointer;
+}
+.btns-row  .info:hover {
+    opacity: 0.8;
+}
+.btns-row .info.is-disabled {
+    filter: grayscale(1);
+}
+
+/*按钮修改*/
+.btns-row  .edit{
+    margin: 0px 5px 5px 0px;
+    padding: 0px 10px;
+    width: auto;
+    height: 36px;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 0px solid var(--theme);
+    background: #42afea;
+    cursor: pointer;
+}
+.btns-row  .edit:hover {
+    opacity: 0.8;
+}
+.btns-row .edit.is-disabled {
+    filter: grayscale(1);
+}
+
+/*按钮删除*/
+.btns-row  .del{
+    margin: 0px 5px 5px 0px;
+    padding: 0px 10px;
+    width: auto;
+    height: 36px;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 1px solid rgb(182, 43, 43);
+    background: rgb(182, 43, 43);
+    cursor: pointer;
+}
+.btns-row .del:hover {
+    opacity: 0.8;
+}
+.btns-row .del.is-disabled {
+    filter: grayscale(1);
+}
+
+/*统计图按钮*/
+.btns-row  .chart {
+    margin: 0px 5px 5px 0px;
+    padding: 0px 10px;
+    width: auto;
+    height: 36px;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 0px solid rgb(168, 182, 43);
+    background: rgb(168, 182, 43);
+    cursor: pointer;
+}
+.btns-row .chart :hover {
+    opacity: 0.8;
+}
+.btns-row .chart.is-disabled {
+    filter: grayscale(1);
+}
+
+/*其他按钮*/
+.btns-row  .other {
+    margin: 0px 5px 5px 0px;
+    padding: 0px 10px;
+    width: auto;
+    height: 36px;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 0px solid rgb(173, 93, 47);
+    background: rgb(173, 93, 47);
+    cursor: pointer;
+}
+.btns-row .other:hover {
+    opacity: 0.8;
+}
+.btns-row .other.is-disabled {
+    filter: grayscale(1);
+}
+
+/*表格总盒子*/
+.table-wrapper {
+    margin-top: 20px;
+    border:20px solid transparent;
+    background: linear-gradient(white, white) padding-box, linear-gradient(180deg, var(--theme3), var(--theme)) border-box;
+    border-radius: 30px;
+}
+/*表格盒子*/
+.el-table {
+   background: rgba(255,255,255,0);
+   border: 0px solid #eee;
+}
+.el-table:before {
+    content: "";
+    position: absolute;
+    background:none;
+    z-index: 1
+}
+/*表格头*/
+.el-table .el-table__header .has-gutter tr{
+    background:var(--theme3);
+}
+.el-table .el-table__header tr:hover{
+    background:var(--theme3);
+}
+.el-table__header .has-gutter tr th{
+    background: none;
+    color:#fff;
+}
+.el-table tr{
+    background: none;
+}
+/*tr悬浮颜色*/
+.el-table tr:hover{
+    background: #F1FAFF;
+}
+/*斑马纹*/
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+    background: #fff;
+}
+/*删除默认的背景色*/
+.el-table--enable-row-hover .el-table__body tr:hover>td.el-table__cell {
+    background: none;
+}
+/*th下横线*/
+.el-table th.el-table__cell.is-leaf {
+    border-bottom:0px solid #eee;
+}
+/*td下横线*/
+.el-table td.el-table__cell {
+    background: #fff;
+    border-bottom: 1px solid #677f8c50;
+    border-right: 1px solid #677f8c50;
+}
+.el-button--text{
+    color:var(--swiper-theme-color);
+}
+
+/*表格按钮*/
+.el-table .cell {
+    display:flex;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px
+}
+
+.el-table td .el-button{
+    margin: 0px 6px 6px 0px;
+    padding: 8px;
+    width: auto;
+    height: auto;
+    font-size: 14px;
+    color: #fff;
+    border-radius: 4px;
+    border: 0px solid var(--theme);
+    background: #42afea;
+    cursor: pointer;
+}
+
+/*详情*/
+.el-table td  .info{
+    background: #59db9f;
+    color: #fff;
+}
+.el-table td  .info:hover {
+}
+/*删除*/
+.el-table td .delete{
+    background: #db596b;
+    color: #fff;
+}
+.el-table td .delete:hover {
+}
+/*跨表*/
+.el-table td .cross{
+    background: var(--theme);
+    color: #fff;
+}
+.el-table td .cross:hover {
+}
+/*其他*/
+.el-table td .some{
+    background: #42afea;
+    color: #fff;
+}
+.el-table td .some:hover {
+}
+
+/*复选框*/
+.el-checkbox__inner:hover {
+    border-color: #56c68b;
+}
+.el-checkbox__input.is-checked .el-checkbox__inner {
+    background-color: #56c68b;
+    border-color: #56c68b;
+}
+.el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #56c68b;
+}
+.el-checkbox__input.is-focus .el-checkbox__inner {
+    border-color: #56c68b;
+}
+.el-checkbox__input.is-indeterminate .el-checkbox__inner {
+    background-color: #56c68b;
+    border-color: #56c68b;
+}
+
+/*分页总盒子*/
+.pagination {
+    text-align: center;
+    margin-top: 10px;
+    background: none;
+}
+/*分页按钮*/
+.el-pagination button{
+    padding: 0 6px;
+}
+.el-pagination button:hover {
+    color:var(--swiper-theme-color);
+}
+.el-pagination button:disabled {
+    color: #999;
+    background: none;
+    margin:0 2px;
+    border-radius:2px;
+}
+.el-pagination button,.el-pagination span:not([class*=suffix]) {
+    font-size: 14px;
+    height: 28px;
+    line-height: 28px;
+}
+.el-pagination .btn-next,.el-pagination .btn-prev {
+    color: #666;
+    font-weight:500;
+    background: none;
+    margin:0 2px;
+    border-radius:2px;
+}
+.el-pager li {
+    min-width:inherit;
+    color: #666;
+    font-size: 14px;
+    font-weight:500;
+    padding:0 4px;
+    height: 28px;
+    line-height: 28px;
+    background: none;
+    margin:0 5px;
+    border-radius:2px;
+}
+.el-pager li:hover {
+    color:var(--swiper-theme-color);
+}
+.el-pager li.active {
+    color:var(--swiper-theme-color);
+}
+.el-pagination .el-pager li.disabled {
+    color: #999;
+}
+
+
+/**图片列表**/
+.dataList{
+    width:calc(100% + 20px) ;
+    margin: 20px 0 0 -10px;
+    display: flex;
+    flex-wrap:wrap;
+}
+.dataList .item{
+    width:calc(25% - 20px);
+    margin: 0px 10px 20px;
+    background: #fff;
+    padding:10px;
+    cursor:pointer;
+    border:1px solid var(--theme30);
+}
+.dataList .item .el-image{
+    width:100%;
+    height: 280px;
+    margin-bottom:5px;
+}
+.dataList .item .el-image .el-image__inner{
+    width:100%;
+    height: 100%;
+    object-fit: cover;
+}
+.dataList .item .title{
+    width:100%;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    font-size: 16px;
+    color: #666;
+    line-height:1.5;
+}
+.dataList .item .price{
+    width:100%;
+    font-size: 18px;
+    color: #f00;
+    line-height:1.5;
+    text-align:right;
+}
+.dataList .item .btns{
+    width:100%;
+    margin-top:10px;
+}
+.dataList .item .btns .view_btn{
+    margin: 0px 6px 6px 0px;
+    padding: 5px;
+    width: auto;
+    height: auto;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 0px solid rgb(186, 226, 187);
+    background: #339933;
+    cursor: pointer;
+}
+.dataList .item .btns .edit_btn{
+    margin: 0px 5px 5px 0px;
+    padding: 5px;
+    width: auto;
+    height: auto;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 0px solid rgb(59, 182, 43);
+    background: #38d3e7;
+    cursor: pointer;
+}
+.dataList .item .btns .del_btn{
+    margin: 0px 5px 5px 0px;
+    padding: 5px;
+    width: auto;
+    height: auto;
+    font-size: 14px;
+    color: #fff;
+    border-radius: 4px;
+    border: 0px solid rgb(182, 43, 43);
+    background: rgb(182, 43, 43);
+    cursor: pointer;
+}
+.dataList .item .btns .operate_btn{
+    margin: 0px 5px 5px 0px;
+    padding: 5px;
+    width: auto;
+    height: auto;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 0px solid rgb(168, 182, 43);
+    background: #cd9aed;
+    cursor: pointer;
+}
+.dataList .item .btns .cross_btn{
+    margin: 0px 5px 5px 0px;
+    padding: 5px;
+    width: auto;
+    height: auto;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    border: 0px solid rgb(173, 93, 47);
+    background: #89b2f5;
+    cursor: pointer;
+}
+/**end**/
+
+</style>
+</html>

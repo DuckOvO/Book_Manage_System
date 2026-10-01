@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+<mvc:default-servlet-handler/>
+
+    <!--自动注入 -->
+    <context:component-scan base-package="com.cl"/>
+
+    <mvc:annotation-driven>
+    </mvc:annotation-driven>
+    <!-- 静态资源配置 -->
+    <mvc:resources mapping="/static/client/**" location="/WEB-INF/client/"/>
+    <mvc:resources mapping="/static/manage/**" location="/WEB-INF/manage/"/>
+    <!-- 对模型视图名称的解析,即在模型视图名称添加前后缀 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    
+    <!-- 拦截器配置 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/manage/**"/>
+            <mvc:exclude-mapping path="/client/**"/>
+            <mvc:exclude-mapping path="/file"/>
+            <bean class="com.cl.interceptor.AuthorizationInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!-- 上传限制 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 上传文件大小限制为100M，100*1024*1024 -->
+        <property name="maxUploadSize" value="104857600"/>
+    </bean>
+    <!-- 启用 AOP 自动代理 -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+</beans>

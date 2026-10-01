@@ -1,0 +1,336 @@
+#pageHeader{
+    height: 80px;
+    box-shadow: 0 0px 0px rgba(0,21,41,.08);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 30px;
+    background: #fff;
+    font-size: 16px;
+    color: var(--theme);
+    box-shadow: 0px 4px 10px 0px rgba(0,0,0,0.3);
+    position: relative;
+}
+.menu-switch{
+    font-size: 20px;
+    cursor: pointer;
+    position: absolute;
+    left: 20px;
+    top:26px;
+}
+.breadcrumb{
+    margin-left: 20px;
+}
+.project-name{
+    margin: 0;
+    font-size: 26px;
+    position: absolute;
+    left: 80px;
+}
+.user-avatar{
+    position: relative;
+    margin-right: 20px;
+    font-size: 16px;
+}
+.user-avatar img{
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+}
+ 
+.notice-btn{
+    background: var(--theme);
+    border:none;
+    color:#fff;
+    font-size: 16px;
+    margin:0 50px 0 0
+}
+.notice-btn:hover{
+    background: none; 
+}
+.notice-btn .iconfont{
+    font-size: 22px !important;
+}
+#pageHeader .menu-switch .iconfont{
+    font-size:32px;
+}
+
+.breadcrumb-row {
+    display: flex;
+    justify-content: space-between;
+    background:none;
+    padding:0px;
+}
+.breadcrumb-row .pageName{
+    color:#333;
+}
+.breadcrumb-row .breadcrumb {
+    display: flex;
+    align-items: center;
+}
+.breadcrumb-row .breadcrumb .iconfont{
+    color:#666;
+}
+.breadcrumb-row .breadcrumb .el-breadcrumb__item .el-icon-arrow-right{
+    color:#666;
+}
+.breadcrumb-row .breadcrumb .el-breadcrumb__item .el-breadcrumb__inner{
+    color:#666;
+}
+
+
+#page {
+    height: 100vh;
+}
+.el-container {
+    overflow: hidden;
+}
+.el-aside {
+    height: 100%;
+    overflow-y: auto;
+    background: var(--theme);
+}
+.el-aside::-webkit-scrollbar {
+    display: none;
+}
+.el-header {
+    z-index: 999;
+    padding: 0!important;
+}
+/*全局总盒子*/
+#page {
+    height: 100vh;
+    background: #fff;
+}
+
+.el-container {
+    overflow: hidden;
+}
+
+/*菜单总盒子*/
+.el-aside {
+   height: 100%;
+   overflow-y: auto;
+   background: var(--theme);
+   padding:10px 10px;
+   border-right:0px solid #ddd;
+   box-Shadow:0px 0px 0px rgba(0, 0, 0, .2);
+    font-size:16px;
+}
+.el-aside::-webkit-scrollbar {
+    display: none;
+}
+.el-header {
+    z-index: 999;
+    padding: 0!important;
+}
+
+/*菜单盒子 折叠过渡须设置固定宽度*/
+.el-menu {
+    background:none;
+    border-right: none!important;
+}
+.el-menu:not(.el-menu--collapse) {
+    width: 180px;
+}
+
+/*首页  一级菜单item*/
+.el-menu .el-menu-item { 
+    color: var(--theme3) !important;
+    margin-bottom:10px;
+    height: 52px;
+    line-height: 48px;
+    border-bottom: 0px solid #dedede;
+    border-radius: 20px;
+    font-size: inherit;
+    border: 4px solid transparent;
+    background: linear-gradient(white, white) padding-box, linear-gradient(180deg, var(--theme3), var(--theme)) border-box;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px 0px rgba(0,0,0,0.3);
+}
+.el-menu .el-menu-item:hover {
+    border: 4px solid transparent;
+    background: linear-gradient(white, white) padding-box, linear-gradient(180deg, var(--theme3), var(--theme)) border-box;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px 0px rgba(0,0,0,0.3);
+    color:var(--theme) !important;
+ }
+.el-menu .el-menu-item.is-active {
+    border: 4px solid transparent;
+    background: linear-gradient(white, white) padding-box, linear-gradient(180deg, var(--theme3), var(--theme)) border-box;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px 0px rgba(0,0,0,0.3);
+    color:var(--theme) !important;
+}
+.el-menu .el-menu-item.is-active i {
+    color:#fff !important;
+    font-size:24px;
+}
+.el-menu-item.is-active {
+    color:#fff !important;
+}
+.el-menu-item.is-active i {
+    color:#fff !important;
+}
+/*图标*/
+.el-menu .el-menu-item .el-icon-s-home {
+    color: var(--theme3) !important;
+    font-size:24px;
+}
+.el-menu .el-menu-item:hover .el-icon-s-home{
+    color:var(--theme) !important;
+ }
+.el-menu .el-menu-item.is-active .el-icon-s-home{
+    color:var(--theme) !important;
+ }
+.el-menu .el-icon-menu{
+    color: var(--theme3) !important;
+    font-size:24px;
+}
+.el-menu .el-menu-item:hover .el-icon-menu{
+    color: var(--theme) !important;
+ }
+.el-menu .el-menu-item.is-active .el-icon-menu{
+    color: var(--theme) !important;
+ }
+
+/*其他 一级菜单总盒子*/
+.el-menu .el-submenu{
+    margin-bottom:0px;
+}
+/*其他 一级菜单盒子*/
+.el-menu .el-submenu .el-submenu__title{
+    color: var(--theme3) !important;
+    border-bottom: 0px solid #dedede;
+    height: 52px;
+    line-height: 48px;
+    margin-bottom:10px;
+    border-radius: 20px;
+    font-size: inherit;
+    border: 4px solid transparent;
+    background: linear-gradient(white, white) padding-box, linear-gradient(180deg, var(--theme3), var(--theme)) border-box;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px 0px rgba(0,0,0,0.3);
+}
+.el-menu .el-submenu .el-submenu__title:focus,.el-menu .el-submenu .el-submenu__title:hover {
+    border: 4px solid transparent;
+    background: linear-gradient(white, white) padding-box, linear-gradient(180deg, var(--theme3), var(--theme)) border-box;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px 0px rgba(0,0,0,0.3);
+    color:var(--theme) !important;
+}
+.el-menu .el-submenu.is-opened .el-submenu__title  {
+    border: 4px solid transparent;
+    background: linear-gradient(white, white) padding-box, linear-gradient(180deg, var(--theme3), var(--theme)) border-box;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px 0px rgba(0,0,0,0.3);
+    color:var(--theme) !important;
+}
+
+/*其他 一级菜单 图标*/
+.el-menu .el-submenu .el-submenu__title .el-icon-menu {
+    color: var(--theme3) !important;
+    font-size:24px;
+}
+.el-menu .el-submenu .el-submenu__title:hover .el-icon-menu{
+    color: var(--theme) !important;
+}
+.el-menu .el-submenu.is-opened .el-submenu__title .el-icon-menu{
+    color: var(--theme) !important;
+}
+
+/*其他 一级菜单 箭头*/
+.el-menu .el-submenu .el-submenu__title .el-submenu__icon-arrow{
+    color: var(--theme3) !important;
+}
+.el-menu .el-submenu .el-submenu__title:hover .el-submenu__icon-arrow{
+    color: var(--theme) !important;
+}
+.el-menu .el-submenu.is-opened .el-submenu__title .el-submenu__icon-arrow{
+    color: var(--theme) !important;
+}
+
+/*二级菜单盒子*/
+.el-submenu .el-menu {
+    margin-bottom:10px;
+    background:#fff;
+    padding:10px;
+    border-radius:6px;
+}
+/*二级菜单item*/
+.el-submenu .el-menu .el-menu-item {
+    height: 30px;
+    line-height: 30px;
+    padding: 0 22px 0 22px !important;
+    min-width: 100%;
+    background:none !important;
+    color:#677F8C !important;
+    box-shadow:none;
+    margin-bottom:5px;
+    animation-duration: 0s;
+}
+.el-submenu .el-menu .el-menu-item:hover {
+    background:none !important;
+    color:var(--theme) !important;
+}
+.el-submenu .el-menu .el-menu-item.is-active {
+    background:none !important;
+    color:var(--theme) !important;
+}
+
+
+/*二级菜单进入动画*/
+.el-submenu .v-enter-to{
+
+}
+
+/*收缩的二级菜单总盒子*/
+.el-menu--vertical{
+    left:80px !important;
+    margin:0px;
+}
+/*收缩的二级菜单ul*/
+.el-menu--vertical>.el-menu--popup {
+    padding: 0;
+    width:auto !important;
+    min-width:150px !important;
+    border-radius: 0px;
+}
+.el-menu--vertical .el-menu--popup .el-menu-item {
+    background: #fff !important;
+    color: var(--swiper-theme-color) !important;
+    margin-bottom: 0px;
+    height:var(--button-height);
+    line-height:var(--button-line-height);
+    border-bottom: 0px solid #eee;
+    padding: 10px 20px;
+    border-radius: 0px;
+}
+.el-menu--vertical .el-menu--popup .el-menu-item:hover{
+    background:var(--swiper-theme-color) !important;
+    color: #fff !important;
+}
+/*二级菜单首页*/
+.el-tooltip__popper {
+    position: absolute;
+    cursor:pointer;
+    border-radius: 2px;
+    width:auto !important;
+    min-width:150px !important;
+    background: #fff !important;
+    color: var(--swiper-theme-color) !important;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    height:var(--button-height);
+    line-height:var(--button-line-height);
+    margin:0px;
+    padding: 10px 20px;
+    left:72px !important;
+}
+.el-tooltip__popper:hover{
+    background:var(--swiper-theme-color) !important;
+    color: #fff !important;
+}
+.el-tooltip__popper .popper__arrow{
+    display:none;
+}

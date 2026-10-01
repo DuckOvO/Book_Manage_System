@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cl.dao.YuqifakuanDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.cl.entity.YuqifakuanEntity" id="yuqifakuanMap">
+        <result property="yuqibianhao" column="yuqibianhao"/>
+        <result property="zujiebianhao" column="zujiebianhao"/>
+        <result property="shujimingcheng" column="shujimingcheng"/>
+        <result property="fengmian" column="fengmian"/>
+        <result property="shujifenlei" column="shujifenlei"/>
+        <result property="bianma" column="bianma"/>
+        <result property="jieyueshuliang" column="jieyueshuliang"/>
+        <result property="yonghuming" column="yonghuming"/>
+        <result property="xingming" column="xingming"/>
+        <result property="guihaishijian" column="guihaishijian"/>
+        <result property="fakuanjine" column="fakuanjine"/>
+        <result property="ispay" column="ispay"/>
+    </resultMap>
+
+    <select id="selectListView"
+		resultType="com.cl.entity.view.YuqifakuanView" >
+
+		SELECT  yuqifakuan.* FROM yuqifakuan  yuqifakuan 	        
+        <where> 1=1 ${ew.sqlSegment}</where>
+	</select>
+	
+	<select id="selectView"
+		resultType="com.cl.entity.view.YuqifakuanView" >
+		SELECT * FROM yuqifakuan  yuqifakuan <where> 1=1 ${ew.sqlSegment}</where>
+	</select>
+
+
+
+	
+</mapper>
